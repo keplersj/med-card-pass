@@ -1,123 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-card-font="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Med Card Pass</title>
+<title>Med Card Pass: add your medical card to your phone's wallet</title>
 <meta name="description" content="Turn a medical card PDF into a wallet pass, right in your browser. Nothing is uploaded.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0b0c0c">
 <style>
-/* VOICE: clinical and calm, a government ID desk, plain words.
-   IDEA: a laminated wallet card that fills itself in from your PDF.
-   PICTURE: the live card preview at the top; it is also the drop zone.
-   COLOUR and TYPE: deep slate teal band, pale teal stripe, white card, Public Sans.
-   LAYOUT: one column on a phone; card left, fields right above 900px. */
-:root{color-scheme:light dark;--bg:light-dark(#eef3f4,#0c1a1d);--ink:light-dark(#10181b,#e8f0f1);--mute:light-dark(#53656a,#9db3b8);--band:#12434d;--stripe:#a9c9cf;--panel:light-dark(#ffffff,#13262a);--line:light-dark(#d5e1e3,#24403f);--accent:#0f7a8a;--warn:light-dark(#9a3b16,#ffb08a)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-*{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
-header{background:var(--band);color:#fff;padding:28px max(5vw,16px) 22px;border-bottom:8px solid var(--stripe)}
-h1{font-size:clamp(28px,5vw,40px);line-height:1.05;margin:0 0 8px;text-wrap:balance;font-weight:700}
-header p{margin:0;max-width:62ch;color:#d9ecef}
-main{display:grid;gap:28px;padding:28px max(5vw,16px) 48px;max-width:1240px;margin:0 auto}
-@media(min-width:900px){main{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}}
-.card{position:relative;aspect-ratio:1080/1500;background:#fff;border-radius:22px;box-shadow:0 1px 0 var(--line),0 18px 40px -18px rgba(8,40,46,.45);overflow:hidden;border:1px solid var(--line)}
-.card img{display:block;width:100%;height:100%;object-fit:contain}
-.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#10181b;background:linear-gradient(#12434d 0 16.7%,#a9c9cf 16.7% 17.6%,#fff 17.6%)}
-.empty .well{border:2px dashed #9fbcc1;border-radius:16px;padding:28px 18px;width:100%;max-width:330px;background:#f7fbfb}
-.empty strong{display:block;font-size:20px;margin-bottom:6px}
-.card.drag .well{border-color:var(--accent);background:#e6f4f6}
-button,.btn{font:600 16px/1 inherit;font-family:inherit;min-height:48px;padding:0 20px;border-radius:12px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
-button:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid #6cc4d1;outline-offset:2px}
-button[disabled]{opacity:.45;cursor:default}
-label.btn{display:inline-flex;align-items:center}
+/* Direction A, "Service": a plain public-service form. Three numbered steps,
+   strong labels, square inputs, one green action. Neutral enough to sit inside an issuer's site. */
+:root{--ink:#0b0c0c;--mute:#505a5f;--line:#b1b4b6;--bg:#fff;--soft:#f3f2f1;--link:#1d4f91;--go:#00703c;--go-dark:#005a30;--focus:#ffdd00;--bad:#d4351c}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--link);text-underline-offset:3px}
+:focus-visible{outline:3px solid var(--focus)!important;outline-offset:0;box-shadow:0 0 0 6px var(--ink)}
+.notice{background:var(--ink);color:#fff;font-size:15px;padding:8px max(4vw,16px)}
+.notice b{background:#fff;color:var(--ink);padding:1px 6px;margin-right:8px;font-size:13px;letter-spacing:.04em;text-transform:uppercase}
+.top{border-bottom:10px solid var(--link);padding:18px max(4vw,16px)}
+.brand{font-weight:700;font-size:22px;letter-spacing:-.01em;display:flex;gap:10px;align-items:center}
+.brand svg{flex:none}
+main{max-width:720px;margin:0 auto;padding:32px max(4vw,16px) 64px}
+h1{font-size:clamp(32px,6vw,46px);line-height:1.08;margin:0 0 16px;letter-spacing:-.02em}
+.lead{font-size:21px;margin:0 0 28px;color:var(--ink)}
+.step{border-top:1px solid var(--line);padding:28px 0 8px;display:grid;grid-template-columns:44px 1fr;gap:0 16px}
+.num{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;display:grid;place-items:center;font-size:20px}
+.step h2{font-size:26px;margin:4px 0 12px;line-height:1.2}
+.step>div{grid-column:2}
+@media(max-width:520px){.step{grid-template-columns:1fr}.num{margin-bottom:10px}.step>div{grid-column:1}}
+.drop{border:2px dashed var(--mute);background:var(--soft);padding:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.drop.drag,#card.drag .drop{border-color:var(--link);background:#e8f0f9}
+.drop p{margin:0;flex:1 1 200px;color:var(--mute);font-size:17px}
+.btn{font:700 19px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:52px;padding:0 22px;border:0;border-radius:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;background:var(--go);color:#fff;box-shadow:0 3px 0 var(--go-dark)}
+.btn:hover{background:var(--go-dark)}
+.btn.second{background:var(--soft);color:var(--ink);box-shadow:0 3px 0 #929191}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+label.btn{position:relative}
 label.btn input{position:absolute;opacity:0;width:1px;height:1px}
-.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.note{font-size:14px;color:var(--mute);margin:10px 0 0}
-.status{min-height:24px;margin:14px 0 0;font-weight:500}
-.status.bad{color:var(--warn)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
-.panel h2{font-size:20px;margin:0 0 12px}
-.fields{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
-.fields label{display:grid;gap:4px;font-size:14px;color:var(--mute);font-weight:500}
-input[type=text],input[type=date]{font:16px "Public Sans",system-ui,sans-serif;min-height:46px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink);width:100%}
-.check{display:flex;gap:10px;align-items:center;font-size:15px;margin-top:14px}
-.check input{width:22px;height:22px;accent-color:var(--accent)}
-ol{margin:0;padding-left:22px}ol li{margin:6px 0}
-code{overflow-wrap:anywhere;font-size:14px}
-.stack{display:grid;gap:20px}
-.priv{border-left:0;background:light-dark(#e3eff1,#102a2e)}
-footer{padding:0 max(5vw,16px) 40px;max-width:1240px;margin:0 auto;color:var(--mute);font-size:14px}
-details summary{cursor:pointer;font-weight:600;min-height:32px}
-@media(prefers-reduced-motion:no-preference){.card img{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}}
+#card{display:grid;gap:20px}
+.preview{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:20px;align-items:start}
+@media(max-width:520px){.preview{grid-template-columns:1fr}}
+#out{width:100%;max-width:220px;border:1px solid var(--line);display:block}
+.status{font-weight:700;margin:0;padding-left:14px;border-left:5px solid var(--link);min-height:1.45em}
+.status:empty{display:none}
+.status.bad{border-color:var(--bad);color:var(--bad)}
+.fields{display:grid;gap:20px;grid-template-columns:1fr 1fr}
+.fields .wide{grid-column:1/-1}
+@media(max-width:520px){.fields{grid-template-columns:1fr}}
+.fields label{display:grid;gap:6px;font-weight:700;font-size:19px}
+input[type=text],input[type=date]{font:19px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;height:48px;padding:6px 10px;border:2px solid var(--ink);border-radius:0;background:#fff;color:var(--ink);width:100%}
+.check{display:flex;gap:12px;align-items:center;margin-top:20px;font-size:19px}
+.check input{width:32px;height:32px;accent-color:var(--ink);margin:0}
+details{margin-top:18px}
+summary{color:var(--link);text-decoration:underline;cursor:pointer;font-size:17px}
+code{font-size:15px;background:var(--soft);padding:2px 4px;overflow-wrap:anywhere}
+.actions{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:4px 0 18px}
+.hint{color:var(--mute);font-size:17px;margin:8px 0}
+ol.how{padding-left:24px;margin:8px 0}ol.how li{margin:6px 0}
+.inset{border-left:10px solid var(--line);padding:6px 0 6px 18px;margin:20px 0;color:var(--ink)}
+.inset p{margin:6px 0}
+footer{border-top:1px solid var(--line);margin-top:40px;padding-top:20px;color:var(--mute);font-size:16px}
 </style>
 </head>
 <body>
-<header>
-  <h1>Med Card Pass</h1>
-  <p>Pick your medical card PDF. This page reads its QR code and your details in your browser and builds a wallet pass (.pkpass) with them. A card image is there too, as a fallback.</p>
-</header>
+<div class="notice"><b>Unofficial</b>This tool runs on your device. Your card is never uploaded.</div>
+<header class="top"><div class="brand"><svg width="30" height="24" viewBox="0 0 30 24" aria-hidden="true"><rect x="1" y="1" width="28" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><rect x="5" y="6" width="8" height="8" fill="currentColor"/><rect x="16" y="7" width="9" height="2" fill="currentColor"/><rect x="16" y="12" width="6" height="2" fill="currentColor"/></svg>Med Card Pass</div></header>
 <main>
-  <section>
-    <div class="card" id="card">
-      <img id="out" alt="Your wallet card" hidden>
-      <div class="empty" id="empty">
-        <div class="well">
-          <strong>Choose your card PDF</strong>
-          <span style="font-size:15px;color:#53656a">Tap below, or drop the file here.</span>
-          <div class="row" style="justify-content:center"><label class="btn">Choose PDF<input type="file" id="file" accept="application/pdf,.pdf"></label></div>
-        </div>
+  <h1>Add your medical card to your phone's wallet</h1>
+  <p class="lead">Choose the PDF of your card. This page reads it on your phone and makes a wallet pass with the same QR code.</p>
+
+  <section class="step" id="card">
+    <span class="num">1</span>
+    <div>
+      <h2>Choose your card PDF</h2>
+      <div class="drop">
+        <label class="btn second">Choose file<input type="file" id="file" accept="application/pdf,.pdf"></label>
+        <p>Or drag the file here. Use the card PDF itself, not a receipt or letter.</p>
       </div>
+      <p class="status" id="status" role="status" aria-live="polite" style="margin-top:16px"></p>
     </div>
-    <p class="status" id="status" role="status" aria-live="polite"></p>
-    <div class="row">
-      <button id="pkpass" disabled>Download .pkpass</button>
-      <button id="save" class="ghost" disabled>Save card image</button>
-      <label class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)">Use another PDF<input type="file" id="file2" accept="application/pdf,.pdf"></label>
-    </div>
-    <p class="note" id="testnote">Test pass: signed in your browser with a throwaway certificate, not by Apple. <a href="#" id="unsigned">Download an unsigned .pkpass instead</a>.</p>
-    <p class="note" id="hold">If Save card image doesn't work in your browser, press and hold the card and choose Download image.</p>
   </section>
 
-  <div class="stack">
-    <div class="panel">
-      <h2>Details on the card</h2>
-      <div class="fields">
-        <label>Card title<input type="text" id="f-title" value="Medical Cannabis Card"></label>
-        <label>Patient ID<input type="text" id="f-id" autocomplete="off"></label>
-        <label>Name<input type="text" id="f-name" autocomplete="off"></label>
+  <section class="step">
+    <span class="num">2</span>
+    <div>
+      <h2>Check the details</h2>
+      <div class="preview">
+        <div>
+          <img id="out" alt="Preview of your wallet card" hidden>
+          <p class="hint" id="empty">A preview appears here once you choose your card.</p>
+        </div>
+        <p class="hint" style="margin-top:0">Fix anything the page read wrong. The QR code is copied exactly and can't be edited.</p>
+      </div>
+      <div class="fields" style="margin-top:20px">
+        <label class="wide">Card title<input type="text" id="f-title" value="Medical Cannabis Card"></label>
+        <label class="wide">Name<input type="text" id="f-name" autocomplete="off"></label>
+        <label class="wide">Patient ID<input type="text" id="f-id" autocomplete="off"></label>
         <label>Date of birth<input type="date" id="f-dob"></label>
-        <label>Issued<input type="date" id="f-issued"></label>
         <label>Expires<input type="date" id="f-expiration"></label>
+        <label>Issued<input type="date" id="f-issued"></label>
         <label>Provider<input type="text" id="f-provider" autocomplete="off"></label>
       </div>
-      <label class="check"><input type="checkbox" id="f-showdob" checked> Show date of birth on the card</label>
-      <details style="margin-top:14px"><summary>What the QR code says</summary><p class="note">The new QR code holds exactly this text, copied from your card's QR code: <code id="qrtext">nothing yet</code></p></details>
+      <label class="check"><input type="checkbox" id="f-showdob" checked> Show my date of birth on the pass</label>
+      <details><summary>What the QR code says</summary><p class="hint">The pass's QR code holds exactly this text from your card: <code id="qrtext">nothing yet</code></p></details>
     </div>
+  </section>
 
-    <div class="panel">
+  <section class="step">
+    <span class="num">3</span>
+    <div>
       <h2>Add it to your wallet</h2>
-      <p style="margin:0 0 6px"><strong>Android, Google Wallet:</strong></p>
-      <ol>
-        <li>Tap <strong>Download .pkpass</strong>.</li>
-        <li>Open the download from the notification or the Files app.</li>
-        <li>Choose <strong>Google Wallet</strong> and tap <strong>Add</strong>.</li>
+      <div class="actions">
+        <button class="btn" id="pkpass" disabled>Download wallet pass</button>
+        <button class="btn second" id="save" disabled>Save card image</button>
+        <label class="btn second" style="display:none">Use another PDF<input type="file" id="file2" accept="application/pdf,.pdf"></label>
+      </div>
+      <p class="hint"><strong style="color:var(--ink)">On Android:</strong></p>
+      <ol class="how">
+        <li>Open the downloaded pass from your notifications or Files.</li>
+        <li>Choose <strong>Google Wallet</strong>, then <strong>Continue</strong>.</li>
       </ol>
-      <p class="note">If Wallet won't take the pass, try the unsigned one. If neither works, save the card image, then in Google Wallet tap <strong>Add to Wallet</strong>, <strong>Photo</strong> (or <strong>Everything else</strong>) and pick it.</p>
-      <p class="note" id="applenote" hidden><strong>iPhone:</strong> tap Download .pkpass, then Add on the pass preview.</p>
-      <p class="note" id="nosign"><strong>iPhone:</strong> Apple Wallet only opens passes signed with an Apple pass certificate, and this copy of the site doesn't have one set up yet, so iPhones can't use the test pass.</p>
+      <p class="hint" id="testnote">This copy of the site signs passes with a test certificate. Google Wallet accepts it. If yours doesn't, <a href="#" id="unsigned">download an unsigned pass</a>, or save the card image and add it with <strong>Add to Wallet, Photo</strong>.</p>
+      <p class="hint" id="applenote" hidden><strong style="color:var(--ink)">On iPhone:</strong> open the pass and tap Add.</p>
+      <p class="hint" id="nosign"><strong style="color:var(--ink)">On iPhone:</strong> Apple Wallet needs an Apple-signed pass, which this copy of the site can't make yet.</p>
+      <div class="inset"><p><strong>Your card stays on your phone.</strong> The PDF is read and the pass is built in this browser. Nothing about your card is sent anywhere.</p></div>
     </div>
+  </section>
 
-    <div class="panel priv">
-      <h2>Your card stays on your phone</h2>
-      <p style="margin:0">Your PDF is read in this browser tab and never uploaded. The pass is built here too. When this site has an Apple certificate, it signs only a list of file fingerprints, never your details; otherwise the test signature is made in your browser. Once you add the pass to a wallet, it lives there like any other pass.</p>
-    </div>
-  </div>
+  <footer>Open source under the MIT license. Not affiliated with any state program. Keep your official card with you.</footer>
 </main>
-<footer class="band-foot"><p>Open source, MIT license. Not affiliated with any state program. Keep your official card too.</p></footer>
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/pdf.worker.min.js"></script>
 <script src="vendor/jsQR.js"></script>
@@ -126,5 +136,9 @@ details summary{cursor:pointer;font-weight:600;min-height:32px}
 <script src="core.js"></script>
 <script src="pass.js"></script>
 <script src="app.js"></script>
+<script>
+  // Show "Use another PDF" only once a card is loaded, so step 1 stays the single way in.
+  document.addEventListener('medcard:render', () => { document.querySelector('#file2').parentElement.style.display = ''; }, { once: true });
+</script>
 </body>
 </html>
