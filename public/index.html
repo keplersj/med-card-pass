@@ -14,6 +14,7 @@
    ink on paper, hairline rules, one oxide-red accent, the card laid on the page like a print. */
 :root{--paper:#f3efe6;--paper2:#ebe5d8;--ink:#1d1b17;--mute:#6b665c;--rule:#cfc7b6;--accent:#b3401f;--accent-dark:#8f3118}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.6 "IBM Plex Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .serif{font-family:Fraunces,Georgia,serif;font-optical-sizing:auto}
 a{color:var(--accent);text-underline-offset:3px}
@@ -24,7 +25,7 @@ a{color:var(--accent);text-underline-offset:3px}
 main{max-width:1120px;margin:0 auto;padding:40px max(5vw,18px) 56px;display:grid;gap:48px}
 @media(min-width:900px){main{grid-template-columns:1fr 400px;grid-template-areas:'intro right' 'steps right';gap:0 72px;align-items:start}.intro{grid-area:intro}.left{grid-area:steps}.right{grid-area:right;position:sticky;top:24px}}
 @media(min-width:900px){.left{margin-top:36px}}
-@media(max-width:899px){.right{max-width:360px;width:100%;justify-self:center}main{gap:32px}}
+@media(max-width:899px){#card:not(.has){aspect-ratio:auto;min-height:280px}.right{max-width:360px;width:100%;justify-self:center}main{gap:32px}}
 h1{font-family:Fraunces,Georgia,serif;font-weight:500;font-size:clamp(44px,8vw,84px);line-height:.98;letter-spacing:-.02em;margin:0 0 20px}
 h1 em{font-style:italic;color:var(--accent)}
 .lede{font-size:20px;max-width:34ch;margin:0 0 36px;color:var(--ink)}
