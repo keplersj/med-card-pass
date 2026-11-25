@@ -1,123 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-card-font="Roboto, -apple-system, system-ui, sans-serif">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Med Card Pass</title>
 <meta name="description" content="Turn a medical card PDF into a wallet pass, right in your browser. Nothing is uploaded.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#121416" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f3f5" media="(prefers-color-scheme: light)">
 <style>
-/* VOICE: clinical and calm, a government ID desk, plain words.
-   IDEA: a laminated wallet card that fills itself in from your PDF.
-   PICTURE: the live card preview at the top; it is also the drop zone.
-   COLOUR and TYPE: deep slate teal band, pale teal stripe, white card, Public Sans.
-   LAYOUT: one column on a phone; card left, fields right above 900px. */
-:root{color-scheme:light dark;--bg:light-dark(#eef3f4,#0c1a1d);--ink:light-dark(#10181b,#e8f0f1);--mute:light-dark(#53656a,#9db3b8);--band:#12434d;--stripe:#a9c9cf;--panel:light-dark(#ffffff,#13262a);--line:light-dark(#d5e1e3,#24403f);--accent:#0f7a8a;--warn:light-dark(#9a3b16,#ffb08a)}
-:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
-*{box-sizing:border-box;min-width:0}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Public Sans",system-ui,sans-serif;overflow-x:clip}
-header{background:var(--band);color:#fff;padding:28px max(5vw,16px) 22px;border-bottom:8px solid var(--stripe)}
-h1{font-size:clamp(28px,5vw,40px);line-height:1.05;margin:0 0 8px;text-wrap:balance;font-weight:700}
-header p{margin:0;max-width:62ch;color:#d9ecef}
-main{display:grid;gap:28px;padding:28px max(5vw,16px) 48px;max-width:1240px;margin:0 auto}
-@media(min-width:900px){main{grid-template-columns:minmax(0,440px) minmax(0,1fr);align-items:start}}
-.card{position:relative;aspect-ratio:1080/1500;background:#fff;border-radius:22px;box-shadow:0 1px 0 var(--line),0 18px 40px -18px rgba(8,40,46,.45);overflow:hidden;border:1px solid var(--line)}
-.card img{display:block;width:100%;height:100%;object-fit:contain}
-.empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#10181b;background:linear-gradient(#12434d 0 16.7%,#a9c9cf 16.7% 17.6%,#fff 17.6%)}
-.empty .well{border:2px dashed #9fbcc1;border-radius:16px;padding:28px 18px;width:100%;max-width:330px;background:#f7fbfb}
-.empty strong{display:block;font-size:20px;margin-bottom:6px}
-.card.drag .well{border-color:var(--accent);background:#e6f4f6}
-button,.btn{font:600 16px/1 inherit;font-family:inherit;min-height:48px;padding:0 20px;border-radius:12px;border:0;background:var(--accent);color:#fff;cursor:pointer}
-button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
-button:focus-visible,input:focus-visible,label.btn:focus-within{outline:3px solid #6cc4d1;outline-offset:2px}
-button[disabled]{opacity:.45;cursor:default}
-label.btn{display:inline-flex;align-items:center}
-label.btn input{position:absolute;opacity:0;width:1px;height:1px}
-.row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
-.note{font-size:14px;color:var(--mute);margin:10px 0 0}
-.status{min-height:24px;margin:14px 0 0;font-weight:500}
-.status.bad{color:var(--warn)}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
-.panel h2{font-size:20px;margin:0 0 12px}
-.fields{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
-.fields label{display:grid;gap:4px;font-size:14px;color:var(--mute);font-weight:500}
-input[type=text],input[type=date]{font:16px "Public Sans",system-ui,sans-serif;min-height:46px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--ink);width:100%}
-.check{display:flex;gap:10px;align-items:center;font-size:15px;margin-top:14px}
+/* Direction B, "Wallet": feels like a phone app. The live pass is the hero and looks like
+   what lands in Wallet; one big action pinned to the bottom; details tucked into a sheet. */
+:root{color-scheme:light dark;--bg:light-dark(#f2f3f5,#121416);--surface:light-dark(#fff,#1d2023);--ink:light-dark(#15181b,#eef0f2);--mute:light-dark(#61676d,#9aa1a8);--line:light-dark(#dfe2e6,#2c3135);--pass:#12434d;--pass-line:#2a5d68;--accent:light-dark(#1b5e6b,#8fd0dc);--cta:light-dark(#15181b,#eef0f2);--cta-ink:light-dark(#fff,#121416);--bad:light-dark(#b3261e,#f2b8b5)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Roboto,-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:calc(120px + env(safe-area-inset-bottom))}
+.wrap{max-width:440px;margin:0 auto;padding:0 18px}
+header{display:flex;justify-content:space-between;align-items:center;padding:18px 0 10px}
+.mark{font-weight:600;font-size:17px;display:flex;gap:10px;align-items:center}
+.mark i{width:28px;height:28px;border-radius:9px;background:linear-gradient(160deg,#1d6a78,#12434d);display:grid;place-items:center}
+.chip{font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:5px 10px}
+h1{font-size:28px;line-height:1.15;font-weight:600;margin:14px 0 6px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 20px}
+/* the pass */
+#card{position:relative}
+.pass{background:var(--pass);color:#fff;border-radius:26px;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 20px 40px -24px rgba(0,0,0,.6);transition:transform .2s}
+#card.drag .pass{transform:scale(1.02);outline:3px dashed var(--accent);outline-offset:4px}
+.ph{display:flex;align-items:center;gap:14px;padding:18px 20px;border-bottom:1px solid var(--pass-line)}
+.ph .m{width:38px;height:38px;border-radius:50%;background:#e8ecee;color:#3b4a4f;display:grid;place-items:center;font-size:20px}
+.ph .t{font-size:18px}
+.pb{padding:16px 20px 22px}
+.k{font-size:12px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+.v{font-size:17px;margin-top:2px;min-height:1.4em}
+.name .v{font-size:30px;line-height:1.15;font-weight:500;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:10px 0}
+.row+.row{border-top:1px solid var(--pass-line)}
+.row>div:last-child{text-align:right}
+.qr{background:#fff;border-radius:16px;width:58%;margin:16px auto 0;padding:7%;aspect-ratio:1}
+.qr svg{display:block;width:100%;height:100%}
+.sk{display:inline-block;background:rgba(255,255,255,.14);border-radius:6px;height:.9em;vertical-align:middle}
+@media(prefers-reduced-motion:no-preference){.sk{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.5}}}
+.qr .sk{width:100%;height:100%;border-radius:8px;background:#e6eaec}
+#empty{position:absolute;left:0;right:0;bottom:22%;display:grid;justify-items:center;gap:10px;text-align:center}
+.pick{font:600 16px/1 inherit;font-family:inherit;display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 24px;border-radius:999px;background:#fff;color:#12434d;cursor:pointer;position:relative;box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
+.pick input,.ghost input{position:absolute;opacity:0;width:1px;height:1px}
+#empty small{color:#d5e6ea}
+#out{display:none!important}
+.status{min-height:24px;margin:14px 4px 0;font-size:15px;color:var(--mute)}
+.status.bad{color:var(--bad)}
+/* sheet */
+.sheet{background:var(--surface);border:1px solid var(--line);border-radius:20px;margin-top:18px}
+.sheet summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.sheet summary::-webkit-details-marker{display:none}
+.sheet summary::after{content:"";width:9px;height:9px;border-right:2px solid var(--mute);border-bottom:2px solid var(--mute);transform:rotate(45deg);transition:transform .2s}
+.sheet[open] summary::after{transform:rotate(-135deg)}
+.sheet .in{padding:0 18px 18px}
+.f{display:grid;gap:12px}
+.f label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+input[type=text],input[type=date]{font:16px Roboto,-apple-system,system-ui,sans-serif;height:48px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);width:100%}
+.check{display:flex;gap:10px;align-items:center;margin-top:12px;font-size:15px}
 .check input{width:22px;height:22px;accent-color:var(--accent)}
-ol{margin:0;padding-left:22px}ol li{margin:6px 0}
-code{overflow-wrap:anywhere;font-size:14px}
-.stack{display:grid;gap:20px}
-.priv{border-left:0;background:light-dark(#e3eff1,#102a2e)}
-footer{padding:0 max(5vw,16px) 40px;max-width:1240px;margin:0 auto;color:var(--mute);font-size:14px}
-details summary{cursor:pointer;font-weight:600;min-height:32px}
-@media(prefers-reduced-motion:no-preference){.card img{animation:in .35s ease-out}@keyframes in{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}}
+.note{font-size:14px;color:var(--mute);margin:10px 0 0}
+.note a{color:var(--accent)}
+ol{margin:0;padding-left:20px;font-size:15px}ol li{margin:6px 0}
+code{font-size:13px;overflow-wrap:anywhere}
+/* bottom bar */
+.bar{position:fixed;left:0;right:0;bottom:0;padding:12px 18px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+.bar .wrap{display:flex;gap:10px;padding:0}
+#pkpass{flex:1;font:600 17px/1 inherit;font-family:inherit;min-height:56px;border:0;border-radius:999px;background:var(--cta);color:var(--cta-ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}
+.ghost{font:500 15px/1 inherit;font-family:inherit;min-height:56px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;position:relative}
+button[disabled]{opacity:.4;cursor:default}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+footer{color:var(--mute);font-size:13px;margin:22px 4px 0}
 </style>
 </head>
 <body>
-<header>
-  <h1>Med Card Pass</h1>
-  <p>Pick your medical card PDF. This page reads its QR code and your details in your browser and builds a wallet pass (.pkpass) with them. A card image is there too, as a fallback.</p>
-</header>
-<main>
-  <section>
-    <div class="card" id="card">
-      <img id="out" alt="Your wallet card" hidden>
-      <div class="empty" id="empty">
-        <div class="well">
-          <strong>Choose your card PDF</strong>
-          <span style="font-size:15px;color:#53656a">Tap below, or drop the file here.</span>
-          <div class="row" style="justify-content:center"><label class="btn">Choose PDF<input type="file" id="file" accept="application/pdf,.pdf"></label></div>
-        </div>
+<div class="wrap">
+  <header>
+    <div class="mark"><i><svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><rect x=".75" y=".75" width="14.5" height="10.5" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="3" y="3.5" width="4" height="4" fill="#fff"/></svg></i>Med Card Pass</div>
+    <span class="chip"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" y="6" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>On-device</span>
+  </header>
+  <h1>Your med card, in your wallet</h1>
+  <p class="sub">Pick the card PDF. The pass is built right here on your phone.</p>
+
+  <div id="card">
+    <div class="pass" aria-label="Pass preview">
+      <div class="ph"><span class="m" data-k="initial">M</span><span class="t" data-k="title">Medical Cannabis Card</span></div>
+      <div class="pb">
+        <div class="name"><div class="k">Name</div><div class="v" data-k="name"><span class="sk" style="width:70%"></span></div></div>
+        <div class="row"><div><div class="k">Patient ID</div><div class="v" data-k="id"><span class="sk" style="width:9em"></span></div></div><div><div class="k">Expires</div><div class="v" data-k="expiration"><span class="sk" style="width:6em"></span></div></div></div>
+        <div class="row" data-k="dobrow"><div><div class="k">Date of birth</div><div class="v" data-k="dob"><span class="sk" style="width:6em"></span></div></div><div><div class="k">Issued</div><div class="v" data-k="issued"><span class="sk" style="width:6em"></span></div></div></div>
+        <div class="qr" data-k="qr"><span class="sk"></span></div>
       </div>
     </div>
-    <p class="status" id="status" role="status" aria-live="polite"></p>
-    <div class="row">
-      <button id="pkpass" disabled>Download .pkpass</button>
-      <button id="save" class="ghost" disabled>Save card image</button>
-      <label class="btn" style="background:transparent;color:var(--ink);border:1.5px solid var(--line)">Use another PDF<input type="file" id="file2" accept="application/pdf,.pdf"></label>
+    <div id="empty">
+      <label class="pick"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3v9M5 8l4 4 4-4M3 15h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Choose card PDF<input type="file" id="file" accept="application/pdf,.pdf"></label>
+      <small>or drop it on the pass</small>
     </div>
-    <p class="note" id="testnote">Test pass: signed in your browser with a throwaway certificate, not by Apple. <a href="#" id="unsigned">Download an unsigned .pkpass instead</a>.</p>
-    <p class="note" id="hold">If Save card image doesn't work in your browser, press and hold the card and choose Download image.</p>
-  </section>
+    <img id="out" alt="">
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
 
-  <div class="stack">
-    <div class="panel">
-      <h2>Details on the card</h2>
-      <div class="fields">
+  <details class="sheet">
+    <summary>Edit details</summary>
+    <div class="in">
+      <div class="f">
         <label>Card title<input type="text" id="f-title" value="Medical Cannabis Card"></label>
-        <label>Patient ID<input type="text" id="f-id" autocomplete="off"></label>
         <label>Name<input type="text" id="f-name" autocomplete="off"></label>
+        <label>Patient ID<input type="text" id="f-id" autocomplete="off"></label>
         <label>Date of birth<input type="date" id="f-dob"></label>
         <label>Issued<input type="date" id="f-issued"></label>
         <label>Expires<input type="date" id="f-expiration"></label>
         <label>Provider<input type="text" id="f-provider" autocomplete="off"></label>
       </div>
-      <label class="check"><input type="checkbox" id="f-showdob" checked> Show date of birth on the card</label>
-      <details style="margin-top:14px"><summary>What the QR code says</summary><p class="note">The new QR code holds exactly this text, copied from your card's QR code: <code id="qrtext">nothing yet</code></p></details>
+      <label class="check"><input type="checkbox" id="f-showdob" checked> Show date of birth</label>
+      <p class="note">QR code text, copied exactly: <code id="qrtext">nothing yet</code></p>
     </div>
+  </details>
 
-    <div class="panel">
-      <h2>Add it to your wallet</h2>
-      <p style="margin:0 0 6px"><strong>Android, Google Wallet:</strong></p>
+  <details class="sheet">
+    <summary>How to add it</summary>
+    <div class="in">
       <ol>
-        <li>Tap <strong>Download .pkpass</strong>.</li>
-        <li>Open the download from the notification or the Files app.</li>
-        <li>Choose <strong>Google Wallet</strong> and tap <strong>Add</strong>.</li>
+        <li>Tap <strong>Add to wallet</strong> to download the pass.</li>
+        <li>Open it from your notifications or Files.</li>
+        <li>Choose <strong>Google Wallet</strong> and tap <strong>Continue</strong>.</li>
       </ol>
-      <p class="note">If Wallet won't take the pass, try the unsigned one. If neither works, save the card image, then in Google Wallet tap <strong>Add to Wallet</strong>, <strong>Photo</strong> (or <strong>Everything else</strong>) and pick it.</p>
-      <p class="note" id="applenote" hidden><strong>iPhone:</strong> tap Download .pkpass, then Add on the pass preview.</p>
-      <p class="note" id="nosign"><strong>iPhone:</strong> Apple Wallet only opens passes signed with an Apple pass certificate, and this copy of the site doesn't have one set up yet, so iPhones can't use the test pass.</p>
+      <p class="note" id="testnote">Signed with a test certificate, which Google Wallet accepts. Trouble? <a href="#" id="unsigned">Get an unsigned pass</a>, or save the card image and use Add to Wallet, Photo.</p>
+      <p class="note" id="applenote" hidden>iPhone: open the pass and tap Add.</p>
+      <p class="note" id="nosign">iPhone needs an Apple-signed pass, which this copy of the site can't make yet.</p>
     </div>
+  </details>
 
-    <div class="panel priv">
-      <h2>Your card stays on your phone</h2>
-      <p style="margin:0">Your PDF is read in this browser tab and never uploaded. The pass is built here too. When this site has an Apple certificate, it signs only a list of file fingerprints, never your details; otherwise the test signature is made in your browser. Once you add the pass to a wallet, it lives there like any other pass.</p>
-    </div>
-  </div>
-</main>
-<footer class="band-foot"><p>Open source, MIT license. Not affiliated with any state program. Keep your official card too.</p></footer>
+  <details class="sheet">
+    <summary>Privacy</summary>
+    <div class="in"><p class="note" style="margin:0">Your PDF is read and the pass is built in this browser tab. Nothing about your card leaves your phone.</p></div>
+  </details>
+
+  <footer>Open source, MIT. Not affiliated with any state program. Keep your official card too.</footer>
+</div>
+
+<div class="bar"><div class="wrap">
+  <button id="pkpass" disabled><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><rect x="1" y="1" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1 6h18" stroke="currentColor" stroke-width="2"/></svg>Add to wallet</button>
+  <button class="ghost" id="save" disabled>Image</button>
+  <label class="ghost" id="again" hidden>New<input type="file" id="file2" accept="application/pdf,.pdf"></label>
+</div></div>
+
 <script src="vendor/pdf.min.js"></script>
 <script src="vendor/pdf.worker.min.js"></script>
 <script src="vendor/jsQR.js"></script>
@@ -126,5 +152,25 @@ details summary{cursor:pointer;font-weight:600;min-height:32px}
 <script src="core.js"></script>
 <script src="pass.js"></script>
 <script src="app.js"></script>
+<script>
+// Draw the live pass from the same details the real pass uses.
+{
+  const q = k => document.querySelector('[data-k="' + k + '"]');
+  const fmt = s => { if (!s) return '—'; const d = new Date(s + 'T12:00:00Z'); return isNaN(d) ? s : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }); };
+  document.addEventListener('medcard:render', e => {
+    const f = e.detail;
+    q('title').textContent = f.title || 'Medical card';
+    q('initial').textContent = (f.title || 'M').trim().charAt(0).toUpperCase();
+    q('name').textContent = f.name || '—';
+    q('id').textContent = f.id || '—';
+    q('expiration').textContent = fmt(f.expiration);
+    q('issued').textContent = fmt(f.issued);
+    q('dob').textContent = f.showDob ? fmt(f.dob) : '';
+    q('dob').previousElementSibling.style.visibility = f.showDob ? '' : 'hidden';
+    if (f.qr) { const c = qrcode(0, 'M'); c.addData(f.qr); c.make(); q('qr').innerHTML = c.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }
+    document.getElementById('again').hidden = false;
+  });
+}
+</script>
 </body>
 </html>
