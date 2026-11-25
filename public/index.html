@@ -39,10 +39,10 @@ h1{font-size:28px;line-height:1.15;font-weight:600;margin:14px 0 6px;letter-spac
 .sk{display:inline-block;background:rgba(255,255,255,.14);border-radius:6px;height:.9em;vertical-align:middle}
 @media(prefers-reduced-motion:no-preference){.sk{animation:pulse 1.6s ease-in-out infinite}@keyframes pulse{50%{opacity:.5}}}
 .qr .sk{width:100%;height:100%;border-radius:8px;background:#e6eaec}
-#empty{position:absolute;left:0;right:0;bottom:22%;display:grid;justify-items:center;gap:10px;text-align:center}
-.pick{font:600 16px/1 inherit;font-family:inherit;display:inline-flex;align-items:center;gap:8px;min-height:50px;padding:0 24px;border-radius:999px;background:#fff;color:#12434d;cursor:pointer;position:relative;box-shadow:0 6px 18px -6px rgba(0,0,0,.5)}
+[hidden]{display:none!important}
+#empty:not([hidden])~#pkpass,#empty:not([hidden])~#save{display:none}
+.pick{flex:1;font:600 17px/1 inherit;font-family:inherit;display:flex;justify-content:center;align-items:center;gap:10px;min-height:56px;padding:0 24px;border-radius:999px;background:var(--cta);color:var(--cta-ink);cursor:pointer;position:relative}
 .pick input,.ghost input{position:absolute;opacity:0;width:1px;height:1px}
-#empty small{color:#d5e6ea}
 #out{display:none!important}
 .status{min-height:24px;margin:14px 4px 0;font-size:15px;color:var(--mute)}
 .status.bad{color:var(--bad)}
@@ -79,7 +79,7 @@ footer{color:var(--mute);font-size:13px;margin:22px 4px 0}
     <span class="chip"><svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><rect x="1" y="6" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M3 6V4a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>On-device</span>
   </header>
   <h1>Your med card, in your wallet</h1>
-  <p class="sub">Pick the card PDF. The pass is built right here on your phone.</p>
+  <p class="sub">Pick the card PDF below, or drop it on the pass. The pass is built right here on your phone.</p>
 
   <div id="card">
     <div class="pass" aria-label="Pass preview">
@@ -90,10 +90,6 @@ footer{color:var(--mute);font-size:13px;margin:22px 4px 0}
         <div class="row" data-k="dobrow"><div><div class="k">Date of birth</div><div class="v" data-k="dob"><span class="sk" style="width:6em"></span></div></div><div><div class="k">Issued</div><div class="v" data-k="issued"><span class="sk" style="width:6em"></span></div></div></div>
         <div class="qr" data-k="qr"><span class="sk"></span></div>
       </div>
-    </div>
-    <div id="empty">
-      <label class="pick"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3v9M5 8l4 4 4-4M3 15h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Choose card PDF<input type="file" id="file" accept="application/pdf,.pdf"></label>
-      <small>or drop it on the pass</small>
     </div>
     <img id="out" alt="">
   </div>
@@ -139,6 +135,7 @@ footer{color:var(--mute);font-size:13px;margin:22px 4px 0}
 </div>
 
 <div class="bar"><div class="wrap">
+  <label class="pick" id="empty"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M9 3v9M5 8l4 4 4-4M3 15h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Choose card PDF<input type="file" id="file" accept="application/pdf,.pdf"></label>
   <button id="pkpass" disabled><svg width="20" height="16" viewBox="0 0 20 16" aria-hidden="true"><rect x="1" y="1" width="18" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M1 6h18" stroke="currentColor" stroke-width="2"/></svg>Add to wallet</button>
   <button class="ghost" id="save" disabled>Image</button>
   <label class="ghost" id="again" hidden>New<input type="file" id="file2" accept="application/pdf,.pdf"></label>
