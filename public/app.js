@@ -2,7 +2,8 @@
 {
   const $ = id => document.getElementById(id);
   const statusEl = $('status'), out = $('out'), empty = $('empty'), saveBtn = $('save'), passBtn = $('pkpass'), card = $('card');
-  const FONT = '"Public Sans", system-ui, sans-serif';
+  // A page can pick the card image's font with <html data-card-font="...">.
+  const FONT = document.documentElement.dataset.cardFont || '"Public Sans", system-ui, sans-serif';
   const fields = ['title', 'id', 'name', 'dob', 'issued', 'expiration', 'provider'];
   let data = null, pngBlob = null, url = '', signing = null, testSigner = null;
   // Used when the site has no Apple certificate: a test pass, signed in this tab.
@@ -36,7 +37,9 @@
 
   async function render() {
     if (!data || !data.qr) return;
-    try { await document.fonts.load('600 44px "Public Sans"'); await document.fonts.load('700 64px "Public Sans"'); } catch (e) {}
+    try { await document.fonts.load('600 44px ' + FONT); await document.fonts.load('700 64px ' + FONT); } catch (e) {}
+    // Let the page draw its own live preview from the same details.
+    document.dispatchEvent(new CustomEvent('medcard:render', { detail: readFields() }));
     const { canvas, ctx } = makeCanvas(10, 10);
     MedCard.drawCard(ctx, readFields(), qrcode, { font: FONT });
     canvas.toBlob(b => {
