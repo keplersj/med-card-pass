@@ -26,12 +26,13 @@ h1{font-size:clamp(32px,6vw,46px);line-height:1.08;margin:0 0 16px;letter-spacin
 .num{width:40px;height:40px;border-radius:50%;background:var(--ink);color:#fff;font-weight:700;display:grid;place-items:center;font-size:20px}
 .step h2{font-size:26px;margin:4px 0 12px;line-height:1.2}
 .step>div{grid-column:2}
-@media(max-width:520px){.step{grid-template-columns:1fr}.num{margin-bottom:10px}.step>div{grid-column:1}}
+@media(max-width:520px){.step{display:block}.num{float:left;width:32px;height:32px;font-size:17px;margin:0 12px 0 0}.step h2{font-size:23px;margin:0 0 14px;line-height:32px}.step>div>*:not(h2){clear:left}}
 .drop{border:2px dashed var(--mute);background:var(--soft);padding:22px;display:flex;gap:18px;align-items:center;flex-wrap:wrap}
 .drop.drag,#card.drag .drop{border-color:var(--link);background:#e8f0f9}
 .drop p{margin:0;flex:1 1 200px;color:var(--mute);font-size:17px}
 .btn{font:700 19px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:52px;padding:0 22px;border:0;border-radius:0;cursor:pointer;display:inline-flex;align-items:center;gap:10px;background:var(--go);color:#fff;box-shadow:0 3px 0 var(--go-dark)}
 .btn:hover{background:var(--go-dark)}
+.drop .btn.second{background:#fff}
 .btn.second{background:var(--soft);color:var(--ink);box-shadow:0 3px 0 #929191}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 label.btn{position:relative}
