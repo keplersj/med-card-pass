@@ -1,0 +1,27 @@
+{
+  "name": "med-card-pass",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Turn a medical card PDF into an Apple Wallet pass or a Google Wallet card image, in the browser.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/vendor.mjs",
+    "test": "node scripts/vendor.mjs && node test/run.mjs",
+    "dev": "npm run build && npx wrangler pages dev public --compatibility-date=2026-11-01"
+  },
+  "dependencies": {
+    "jsqr": "1.4.0",
+    "jszip": "3.10.1",
+    "pdfjs-dist": "3.11.174",
+    "qrcode-generator": "1.4.4"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.2.0",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

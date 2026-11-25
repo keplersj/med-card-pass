@@ -1,0 +1,8 @@
+node_modules/
+public/vendor/
+.wrangler/
+.dev.vars
+*.p12
+*.pem
+*.key
+test/out/
