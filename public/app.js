@@ -4,7 +4,9 @@
   const statusEl = $('status'), out = $('out'), empty = $('empty'), saveBtn = $('save'), passBtn = $('pkpass'), card = $('card');
   const FONT = '"Public Sans", system-ui, sans-serif';
   const fields = ['title', 'id', 'name', 'dob', 'issued', 'expiration', 'provider'];
-  let data = null, pngBlob = null, url = '', signing = null;
+  let data = null, pngBlob = null, url = '', signing = null, testSigner = null;
+  // Used when the site has no Apple certificate: a test pass, signed in this tab.
+  const TEST = { passTypeIdentifier: 'pass.dev.medcardpass.test', teamIdentifier: 'MCPTEST000', organizationName: 'Med Card Pass' };
 
   const say = (msg, bad) => { statusEl.textContent = msg; statusEl.className = 'status' + (bad ? ' bad' : ''); };
   const makeCanvas = (w, h) => {
@@ -44,7 +46,7 @@
       url = URL.createObjectURL(b);
       out.src = url; out.hidden = false; empty.hidden = true;
       saveBtn.disabled = false;
-      passBtn.disabled = !signing;
+      passBtn.disabled = false;
     }, 'image/png');
   }
 
@@ -84,25 +86,40 @@
     say('Saved. In Google Wallet, add it with Photo.');
   });
 
-  passBtn.addEventListener('click', async () => {
-    if (!signing || !data) return;
+  async function testSign(manifest) {
+    if (!testSigner) {
+      const cms = await import('./vendor/cms.js');
+      const { certDer, key } = await cms.makeSelfSigned(TEST);
+      testSigner = m => cms.signDetachedWith(m, { certDer, key });
+    }
+    return testSigner(manifest);
+  }
+
+  async function serverSign(manifest) {
+    const r = await fetch('api/sign', { method: 'POST', body: manifest, headers: { 'content-type': 'application/json' } });
+    if (!r.ok) throw new Error('sign ' + r.status);
+    return new Uint8Array(await r.arrayBuffer());
+  }
+
+  async function makePass(unsigned) {
+    if (!data || !data.qr) return;
     passBtn.disabled = true;
     say('Making your pass…');
     try {
-      const sign = async manifest => {
-        const r = await fetch('api/sign', { method: 'POST', body: manifest, headers: { 'content-type': 'application/json' } });
-        if (!r.ok) throw new Error('sign ' + r.status);
-        return new Uint8Array(await r.arrayBuffer());
-      };
-      const bytes = await MedPass.buildPkpass(readFields(), signing, { makeCanvas, toBytes, sign, JSZip });
-      download(new Blob([bytes], { type: 'application/vnd.apple.pkpass' }), 'med-card.pkpass');
-      say('Pass made. Open it to add it to your wallet.');
+      const cfg = signing || TEST;
+      const sign = unsigned ? null : signing ? serverSign : testSign;
+      const bytes = await MedPass.buildPkpass(readFields(), cfg, { makeCanvas, toBytes, sign, JSZip });
+      download(new Blob([bytes], { type: 'application/vnd.apple.pkpass' }), unsigned ? 'med-card-unsigned.pkpass' : 'med-card.pkpass');
+      say('Pass downloaded. Open it and choose your wallet.');
     } catch (e) {
       say('I couldn’t make the pass just now. The card image still works for Google Wallet.', true);
     } finally {
       passBtn.disabled = false;
     }
-  });
+  }
+
+  passBtn.addEventListener('click', () => makePass(false));
+  $('unsigned').addEventListener('click', e => { e.preventDefault(); makePass(true); });
 
   // Ask the site whether pass signing is set up. A plain static copy has no /api, which is fine.
   fetch('api/config', { cache: 'no-store' })
@@ -110,8 +127,7 @@
     .then(c => {
       if (!c || !c.signing) return;
       signing = { passTypeIdentifier: c.passTypeIdentifier, teamIdentifier: c.teamIdentifier, organizationName: c.organizationName };
-      passBtn.hidden = false; $('applenote').hidden = false; $('nosign').hidden = true;
-      if (data && data.qr) passBtn.disabled = false;
+      $('applenote').hidden = false; $('nosign').hidden = true; $('testnote').hidden = true;
     })
     .catch(() => {});
 }

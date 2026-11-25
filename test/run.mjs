@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { createCanvas } from '@napi-rs/canvas';
 import JSZip from 'jszip';
 import { makeSamplePdf, SAMPLE } from './make-sample.mjs';
-import { signDetached, validManifest } from '../src/cms.js';
+import { signDetached, validManifest, makeSelfSigned, signDetachedWith } from '../src/cms.js';
 import { onRequestGet as configGet } from '../functions/api/config.js';
 import { onRequestPost as signPost } from '../functions/api/sign.js';
 
@@ -97,4 +97,26 @@ ok('nothing from the card is in what gets sent for signing');
 // 7. Direct signer call works on its own too.
 const sig = await signDetached(new TextEncoder().encode('{"pass.json":"' + '0'.repeat(40) + '"}'), { certPem: env.PASS_CERT_PEM, keyPem: env.PASS_KEY_PEM, chainPems: [env.WWDR_CERT_PEM] });
 assert.ok(sig.length > 1000);
+
+// 8. No Apple certificate: a test pass signed with a throwaway self-signed cert made by the same code the browser uses.
+const TEST = { passTypeIdentifier: 'pass.dev.medcardpass.test', teamIdentifier: 'MCPTEST000', organizationName: 'Med Card Pass' };
+const self = await makeSelfSigned(TEST);
+const testPass = await MedPass.buildPkpass({ ...card, showDob: true }, TEST, { makeCanvas, toBytes, sign: m => signDetachedWith(m, self), JSZip });
+const tz = await JSZip.loadAsync(testPass);
+assert.ok(tz.file('signature'));
+mkdirSync(join(work, 't'), { recursive: true });
+writeFileSync(join(work, 't', 'manifest.json'), await tz.file('manifest.json').async('uint8array'));
+writeFileSync(join(work, 't', 'signature'), await tz.file('signature').async('uint8array'));
+writeFileSync(join(work, 't', 'cert.der'), self.certDer);
+sh('x509', '-inform', 'DER', '-in', 't/cert.der', '-out', 't/cert.pem');
+const subj = sh('x509', '-in', 't/cert.pem', '-noout', '-subject').toString();
+assert.match(subj, /pass\.dev\.medcardpass\.test/);
+sh('verify', '-CAfile', 't/cert.pem', 't/cert.pem');
+sh('cms', '-verify', '-binary', '-inform', 'DER', '-in', 't/signature', '-content', 't/manifest.json', '-CAfile', 't/cert.pem', '-purpose', 'any', '-out', '/dev/null');
+ok('test pass: self-signed certificate is well formed and OpenSSL verifies the signature');
+
+// 9. Unsigned pass: same files, no signature.
+const un = await JSZip.loadAsync(await MedPass.buildPkpass({ ...card, showDob: true }, TEST, { makeCanvas, toBytes, sign: null, JSZip }));
+assert.deepEqual(Object.keys(un.files).sort(), ['icon.png', 'icon@2x.png', 'icon@3x.png', 'manifest.json', 'pass.json']);
+ok('unsigned pass has everything but the signature');
 ok('all tests passed');

@@ -104,10 +104,13 @@ function compareBytes(a, b) {
  * chainPems: extra certificates to include (Apple WWDR intermediate).
  */
 export async function signDetached(content, { certPem, keyPem, chainPems = [], now = new Date() }) {
+  const key = await globalThis.crypto.subtle.importKey('pkcs8', pemToDer(keyPem), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  return signDetachedWith(content, { certDer: pemToDer(certPem), key, chainDers: chainPems.filter(Boolean).map(pemToDer), now });
+}
+
+// Same as signDetached, but with a DER certificate and a WebCrypto private key.
+export async function signDetachedWith(content, { certDer, key, chainDers = [], now = new Date() }) {
   const subtle = globalThis.crypto.subtle;
-  const certDer = pemToDer(certPem);
-  const chain = chainPems.filter(Boolean).map(pemToDer);
-  const key = await subtle.importKey('pkcs8', pemToDer(keyPem), { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
   const digest = new Uint8Array(await subtle.digest('SHA-256', content));
 
   const attrs = [
@@ -133,10 +136,45 @@ export async function signDetached(content, { certPem, keyPem, chainPems = [], n
     tlv(0x02, Uint8Array.of(1)),
     set(sha256Alg),
     seq(oid(OID.data)),
-    tlv(0xa0, certDer, ...chain),
+    tlv(0xa0, certDer, ...chainDers),
     set(signerInfo),
   );
   return seq(oid(OID.signedData), tlv(0xa0, signedData));
+}
+
+/**
+ * Make a throwaway self-signed certificate and key in this tab, for test passes
+ * when no Apple certificate is set up. Nothing trusts it; it only makes the
+ * pass structurally complete. The subject mimics an Apple Pass Type ID cert.
+ */
+export async function makeSelfSigned({ passTypeIdentifier, teamIdentifier, organizationName = 'Med Card Pass', days = 3650, now = new Date() }) {
+  const subtle = globalThis.crypto.subtle;
+  const alg = { name: 'RSASSA-PKCS1-v1_5', modulusLength: 2048, publicExponent: Uint8Array.of(1, 0, 1), hash: 'SHA-256' };
+  const keys = await subtle.generateKey(alg, false, ['sign', 'verify']);
+  const spki = new Uint8Array(await subtle.exportKey('spki', keys.publicKey));
+  const rdn = (o, value) => set(seq(oid(o), tlv(0x0c, enc.encode(value))));
+  const name = seq(
+    rdn('0.9.2342.19200300.100.1.1', passTypeIdentifier),
+    rdn('2.5.4.3', 'Pass Type ID: ' + passTypeIdentifier + ' (test, not Apple)'),
+    rdn('2.5.4.11', teamIdentifier),
+    rdn('2.5.4.10', organizationName),
+  );
+  const serial = globalThis.crypto.getRandomValues(new Uint8Array(12));
+  serial[0] &= 0x7f; serial[0] |= 0x01; // positive, no leading zero
+  const sigAlg = seq(oid('1.2.840.113549.1.1.11'), NULL); // sha256WithRSAEncryption
+  const until = new Date(now.getTime() + days * 864e5);
+  const tbs = seq(
+    tlv(0xa0, tlv(0x02, Uint8Array.of(2))), // v3
+    tlv(0x02, serial),
+    sigAlg,
+    name,
+    seq(utcTime(now), utcTime(until)),
+    name,
+    spki,
+  );
+  const sig = new Uint8Array(await subtle.sign('RSASSA-PKCS1-v1_5', keys.privateKey, tbs));
+  const certDer = seq(tbs, sigAlg, tlv(0x03, Uint8Array.of(0), sig));
+  return { certDer, key: keys.privateKey };
 }
 
 // A pass manifest: an object of file name -> SHA-1 hex, with pass.json in it.

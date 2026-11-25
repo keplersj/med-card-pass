@@ -2,8 +2,11 @@
 
 Turn a medical card PDF into a wallet pass, right in the browser.
 
-- **Apple Wallet:** a signed `.pkpass`, when the site has an Apple pass certificate set up.
-- **Google Wallet:** a clean card image with a large QR code, added through Wallet's **Add to Wallet → Photo** option. This works on any copy of the site, with no accounts.
+The page always builds a `.pkpass` (pass.json with the card's QR code as the barcode, the patient ID, name and dates as fields, icons and a manifest) in the browser.
+
+- **With an Apple pass certificate set up** on the site, the pass is Apple-signed and opens in Apple Wallet and anywhere else that takes `.pkpass` files.
+- **Without one**, the page signs a **test pass** in the browser with a throwaway self-signed certificate, and also offers an unsigned copy. Apple Wallet rejects both. Google Wallet on Android can import `.pkpass` files; Google doesn't document whether it checks the signature, so the test pass is there to find out.
+- **Fallback:** a clean card image with a large QR code, added through Google Wallet's **Add to Wallet → Photo** option.
 
 It was built around the Utah medical cannabis card PDF from EVS, but it reads any one-page card PDF that has a QR code. Every field can be edited before you save.
 
@@ -11,7 +14,8 @@ It was built around the Utah medical cannabis card PDF from EVS, but it reads an
 
 - The PDF is read in the browser with [pdf.js](https://mozilla.github.io/pdf.js/) and [jsQR](https://github.com/cozmo/jsQR). It is never uploaded.
 - The new QR code holds exactly the same text as the card's QR code.
-- For an Apple Wallet pass, the browser builds the whole pass itself. It sends the site only `manifest.json`: the pass's file names and their SHA-1 hashes. The server signs that and sends the signature back. Your name, ID, dates and QR text never reach the server. `pass.json` carries a random serial number, so its hash can't be guessed from the card's details.
+- A test pass is signed entirely in the browser; nothing is sent anywhere.
+- For an Apple-signed pass, the browser builds the whole pass itself. It sends the site only `manifest.json`: the pass's file names and their SHA-1 hashes. The server signs that and sends the signature back. Your name, ID, dates and QR text never reach the server. `pass.json` carries a random serial number, so its hash can't be guessed from the card's details.
 - Nothing is logged or stored by the site's code.
 
 ## How it works
@@ -23,17 +27,18 @@ public/        static site (index.html, app.js, core.js, pass.js)
 functions/api  Cloudflare Pages Functions
   config.js    GET  /api/config  says whether signing is set up
   sign.js      POST /api/sign    signs a manifest.json (hashes only)
-src/cms.js     dependency-free PKCS#7 detached signature using WebCrypto
+src/cms.js     dependency-free PKCS#7 detached signature and test certificate using WebCrypto
+               (copied to public/vendor/cms.js at build time for test passes)
 ```
 
-Signing is optional. With no certificate configured, `/api/config` reports `signing: false`, the Apple Wallet button stays hidden, and the site offers the Google Wallet card image only. A plain static host with no `/api` behaves the same way.
+Apple signing is optional. With no certificate configured, `/api/config` reports `signing: false` and the page makes test passes (self-signed or unsigned) in the browser. A plain static host with no `/api` behaves the same way.
 
 ## Deploy to Cloudflare Pages
 
 1. Create a Pages project from this repo.
 2. Build command: `npm run build`. Build output directory: `public`.
 
-That's enough for the Google Wallet card image.
+That's enough for test passes and the card image.
 
 ## Turn on Apple Wallet passes
 

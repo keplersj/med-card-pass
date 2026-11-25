@@ -94,7 +94,7 @@
   // sign(manifestBytes) -> Promise<Uint8Array> DER signature. JSZip is passed in.
   async function buildPkpass(f, cfg, { makeCanvas, toBytes, sign, JSZip }) {
     const files = await buildFiles(f, cfg, makeCanvas, toBytes);
-    files.signature = await sign(files['manifest.json']);
+    if (sign) files.signature = await sign(files['manifest.json']); // no sign: an unsigned pass
     const zip = new JSZip();
     for (const [name, bytes] of Object.entries(files)) zip.file(name, bytes);
     return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', mimeType: 'application/vnd.apple.pkpass' });
